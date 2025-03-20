@@ -59,15 +59,14 @@ pub fn server_macro_impl(
         .inputs
         .iter_mut()
         .map(|f| {
-            let typed_arg = match f {
-                FnArg::Receiver(_) => {
-                    return Err(syn::Error::new(
+            let typed_arg =
+                match f {
+                    FnArg::Receiver(_) => return Err(syn::Error::new(
                         f.span(),
                         "cannot use receiver types in server function macro",
-                    ))
-                }
-                FnArg::Typed(t) => t,
-            };
+                    )),
+                    FnArg::Typed(t) => t,
+                };
 
             // strip `mut`, which is allowed in fn args but not in struct fields
             if let Pat::Ident(ident) = &mut *typed_arg.pat {
@@ -591,15 +590,6 @@ pub fn server_macro_impl(
             #server_fn_path::response::BrowserMockRes
         }
     };
-
-    // Remove any leading slashes, even if they exist (we'll add them below)
-    let fn_path = Literal::string(
-        fn_path
-            .to_string()
-            .trim_start_matches('\"')
-            .trim_start_matches('/')
-            .trim_end_matches('\"'),
-    );
 
     // generate path
     let fn_path_starts_with_slash = fn_path.to_string().starts_with("\"/");
