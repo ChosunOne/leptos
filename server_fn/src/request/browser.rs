@@ -253,6 +253,36 @@ where
             abort_ctrl,
         })))
     }
+
+    fn try_new_delete(
+        path: &str,
+        content_type: &str,
+        accepts: &str,
+        query: &str,
+    ) -> Result<Self, E> {
+        let (abort_ctrl, abort_signal) = abort_signal();
+        let server_url = get_server_url();
+        let mut url = String::with_capacity(
+            server_url.len() + path.len() + 1 + query.len(),
+        );
+        url.push_str(server_url);
+        url.push_str(path);
+        url.push('?');
+        url.push_str(query);
+        Ok(Self(SendWrapper::new(RequestInner {
+            request: Request::delete(&url)
+                .header("Content-Type", content_type)
+                .header("Accept", accepts)
+                .abort_signal(abort_signal.as_ref())
+                .build()
+                .map_err(|e| {
+                    E::from_server_fn_error(ServerFnErrorErr::Request(
+                        e.to_string(),
+                    ))
+                })?,
+            abort_ctrl,
+        })))
+    }
 }
 
 fn streaming_request(

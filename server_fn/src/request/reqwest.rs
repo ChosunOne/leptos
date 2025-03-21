@@ -132,4 +132,28 @@ where
                 ServerFnErrorErr::Request(e.to_string()).into_app_error()
             })
     }
+
+    fn try_new_delete(
+        path: &str,
+        content_type: &str,
+        accepts: &str,
+        query: &str,
+    ) -> Result<Self, E> {
+        let url = format!("{}{}", get_server_url(), path);
+        let mut url = Url::try_from(url.as_str()).map_err(|e| {
+            E::from_server_fn_error(ServerFnErrorErr::Request(e.to_string()))
+        })?;
+        url.set_query(Some(query));
+        let req = CLIENT
+            .delete(url)
+            .header(CONTENT_TYPE, content_type)
+            .header(ACCEPT, accepts)
+            .build()
+            .map_err(|e| {
+                E::from_server_fn_error(ServerFnErrorErr::Request(
+                    e.to_string(),
+                ))
+            })?;
+        Ok(req)
+    }
 }
