@@ -13,19 +13,18 @@ pub struct GetUrl;
 /// Pass arguments as the URL-encoded body of a `POST` request.
 pub struct PostUrl;
 
-<<<<<<<<<<< Conflict 1 of 2
-+++++++++++ Contents of side #1
 /// Pass arguments as the URL-encoded body of a `DELETE` request.
 /// **Note**: Browser support for performing `DELETE` requests may
 /// be poor without JS/WASM. If you want to support
 /// functionality without JS/WASM then consider using [`PostUrl`](PostUrl) instead.
 pub struct DeleteUrl;
 
-%%%%%%%%%%% Changes from base to side #2
-+/// Pass arguments as the URL-encoded body of a `PATCH` request.
-+pub struct PatchUrl;
-+
->>>>>>>>>>> Conflict 1 of 2 ends
+/// Pass arguments as the URL-encoded body of a `PATCH` request.
+/// **Note**: Browser support for performing `PATCH` requests may
+/// be poor without JS/WASM. If you want to support
+/// functionality without JS/WASM then consider using [`PostUrl`](PostUrl) instead.
+pub struct PatchUrl;
+
 impl ContentType for GetUrl {
     const CONTENT_TYPE: &'static str = "application/x-www-form-urlencoded";
 }
@@ -103,8 +102,6 @@ where
         Ok(args)
     }
 }
-<<<<<<<<<<< Conflict 2 of 2
-+++++++++++ Contents of side #1
 
 impl ContentType for DeleteUrl {
     const CONTENT_TYPE: &'static str = "application/x-www-form-urlencoded";
@@ -144,45 +141,42 @@ where
         Ok(args)
     }
 }
->>>>>>> Conflict 2 of 2 ends
-%%%%%%%%%%% Changes from base to side #2
-+
-+impl ContentType for PatchUrl {
-+    const CONTENT_TYPE: &'static str = "application/x-www-form-urlencoded";
-+}
-+
-+impl Encoding for PatchUrl {
-+    const METHOD: Method = Method::PATCH;
-+}
-+
-+impl<E, T, Request> IntoReq<PatchUrl, Request, E> for T
-+where
-+    Request: ClientReq<E>,
-+    T: Serialize + Send,
-+    E: FromServerFnError,
-+{
-+    fn into_req(self, path: &str, accepts: &str) -> Result<Request, E> {
-+        let qs = serde_qs::to_string(&self).map_err(|e| {
-+            ServerFnErrorErr::Serialization(e.to_string()).into_app_error()
-+        })?;
-+        Request::try_new_patch(path, accepts, PatchUrl::CONTENT_TYPE, qs)
-+    }
-+}
-+
-+impl<E, T, Request> FromReq<PatchUrl, Request, E> for T
-+where
-+    Request: Req<E> + Send + 'static,
-+    T: DeserializeOwned,
-+    E: FromServerFnError,
-+{
-+    async fn from_req(req: Request) -> Result<Self, E> {
-+        let string_data = req.try_into_string().await?;
-+        let args = serde_qs::Config::new(5, false)
-+            .deserialize_str::<Self>(&string_data)
-+            .map_err(|e| {
-+                ServerFnErrorErr::Args(e.to_string()).into_app_error()
-+            })?;
-+        Ok(args)
-+    }
-+}
->>>>>>>>>>> Conflict 2 of 2 ends
+
+impl ContentType for PatchUrl {
+    const CONTENT_TYPE: &'static str = "application/x-www-form-urlencoded";
+}
+
+impl Encoding for PatchUrl {
+    const METHOD: Method = Method::PATCH;
+}
+
+impl<E, T, Request> IntoReq<PatchUrl, Request, E> for T
+where
+    Request: ClientReq<E>,
+    T: Serialize + Send,
+    E: FromServerFnError,
+{
+    fn into_req(self, path: &str, accepts: &str) -> Result<Request, E> {
+        let qs = serde_qs::to_string(&self).map_err(|e| {
+            ServerFnErrorErr::Serialization(e.to_string()).into_app_error()
+        })?;
+        Request::try_new_patch(path, accepts, PatchUrl::CONTENT_TYPE, qs)
+    }
+}
+
+impl<E, T, Request> FromReq<PatchUrl, Request, E> for T
+where
+    Request: Req<E> + Send + 'static,
+    T: DeserializeOwned,
+    E: FromServerFnError,
+{
+    async fn from_req(req: Request) -> Result<Self, E> {
+        let string_data = req.try_into_string().await?;
+        let args = serde_qs::Config::new(5, false)
+            .deserialize_str::<Self>(&string_data)
+            .map_err(|e| {
+                ServerFnErrorErr::Args(e.to_string()).into_app_error()
+            })?;
+        Ok(args)
+    }
+}
