@@ -1,4 +1,4 @@
-use super::Post;
+use super::{Patch, Post};
 use crate::{ContentType, Decodes, Encodes};
 use bytes::Bytes;
 use serde::{de::DeserializeOwned, Serialize};
@@ -34,3 +34,5 @@ where
 
 /// Pass arguments and receive responses as JSON in the body of a `POST` request.
 pub type Json = Post<JsonEncoding>;
+/// Pass arguments and receive responses as JSON in the body of a `PATCH` request.
+pub type PatchJson = Patch<JsonEncoding>;
